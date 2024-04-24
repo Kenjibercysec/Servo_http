@@ -1,0 +1,45 @@
+#include <WiFi.h>
+#include <ESPAsyncWebServer.h>
+#include <ESP32Servo.h>
+
+char ssid[] = "";
+char pass[] = "";
+
+Servo meuServo;
+AsyncWebServer server(80);
+
+void handleLigar(AsyncWebServerRequest *request) {
+  meuServo.write(55);  // Ajuste o ângulo conforme necessário (30 graus)
+  delay(2000);  // Tempo para manter o botão pressionado (1,5 segundos)
+  meuServo.write(0);  // Retorne à posição inicial
+  request->send(200, "text/plain", "Servo Ligado");
+}
+
+void setup() {
+  Serial.begin(115200);
+  meuServo.attach(9);  // Ajuste conforme necessário
+
+  // Conectar-se à rede Wi-Fi
+  Serial.print("Conectando à rede WiFi: ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, pass);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println();
+  
+  Serial.println("Conectado à rede WiFi");
+  Serial.print("Endereço IP: ");
+  Serial.println(WiFi.localIP());
+
+  // Configurar rotas
+  server.on("/ligar", HTTP_GET, handleLigar);
+
+  // Iniciar servidor
+  server.begin();
+}
+
+void loop() {
+  // Seu código principal aqui
+}
